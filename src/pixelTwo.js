@@ -71,10 +71,6 @@ document.addEventListener("DOMContentLoaded", function() {
   
       var isHover = img.hasAttribute("data-hover");
   
-      // NEW: data-once logic (default true)
-      var onceAttr = img.dataset.once;
-      var once = onceAttr !== "false";
-  
       var pixelTL = gsap.timeline({
         paused: true,
         defaults: { ease: "power2.out" }
@@ -127,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function() {
   
           trigger: wrapper,
           start: "top 75%",
-          once: once,
+          once: true,
   
           onEnter: function() {
   
@@ -137,26 +133,7 @@ document.addEventListener("DOMContentLoaded", function() {
               overwrite: true
             });
   
-            pixelTL.restart();
-  
-          },
-  
-          // NEW: supaya bisa replay kalau once=false
-          onEnterBack: function() {
-  
-            if (!once) {
-  
-              gsap.set(pixels, { opacity: 1 });
-  
-              gsap.to(content, {
-                opacity: 0,
-                duration: 0.3,
-                overwrite: true
-              });
-  
-              pixelTL.restart();
-  
-            }
+            pixelTL.play();
   
           }
   
@@ -167,4 +144,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   
   });
+  
+  // hendz was here
+  
   
