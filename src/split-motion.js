@@ -1,174 +1,293 @@
-(function (window) {
-  if (!window.gsap || !window.SplitText) {
-    console.warn("[SplitMotion] GSAP or SplitText missing");
+document.addEventListener("DOMContentLoaded", function () {
+
+  if (!window.gsap || !window.SplitText || !window.ScrollTrigger) {
+    console.warn("[SplitMotion] GSAP, ScrollTrigger, or SplitText missing");
     return;
   }
 
   gsap.registerPlugin(SplitText, ScrollTrigger);
 
-  // ===============================
-  // PRESET DEFINITIONS
-  // ===============================
+  /* =========================================================
+     PRESETS
+  ========================================================= */
+
   const PRESETS = {
-    /* ======================
-       BASIC FADE & SLIDE
-    ====================== */
+
+    /* FADE */
     "fade-up": { opacity: 0, y: 40 },
     "fade-down": { opacity: 0, y: -40 },
     "fade-left": { opacity: 0, x: 40 },
     "fade-right": { opacity: 0, x: -40 },
 
+    /* SLIDE */
     "slide-up": { y: 80 },
     "slide-down": { y: -80 },
     "slide-left": { x: 80 },
     "slide-right": { x: -80 },
 
-    /* ======================
-       SCALE / ZOOM
-    ====================== */
+    /* SCALE */
     "zoom-in": { opacity: 0, scale: 0.6 },
     "zoom-out": { opacity: 0, scale: 1.4 },
-    "scale-pop": { scale: 0.5 },
-    "scale-soft": { scale: 0.85 },
 
-    /* ======================
-       ROTATE / FLIP
-    ====================== */
+    "pop": {
+      opacity: 0,
+      scale: 0.3,
+      duration: 0.6,
+      ease: "back.out(2)"
+    },
+
+    "soft-zoom": {
+      opacity: 0,
+      scale: 0.85,
+      duration: 0.9,
+      ease: "power2.out"
+    },
+
+    /* ROTATE */
     "rotate-in": { opacity: 0, rotate: 12 },
     "rotate-out": { opacity: 0, rotate: -12 },
-    "flip-x": { opacity: 0, rotateX: 90 },
-    "flip-y": { opacity: 0, rotateY: 90 },
-    "spin-in": { opacity: 0, rotate: 180 },
 
-    /* ======================
-       BLUR / CINEMATIC
-    ====================== */
-    "blur-in": { opacity: 0, blur: 14 },
-    "blur-soft": { opacity: 0, blur: 6 },
-    cinematic: {
+    "flip-up": {
+      opacity: 0,
+      rotateX: -90,
+      y: 40,
+      duration: 0.8
+    },
+
+    "flip-left": {
+      opacity: 0,
+      rotateY: -90,
+      x: -40,
+      duration: 0.8
+    },
+
+    "flip-right": {
+      opacity: 0,
+      rotateY: 90,
+      x: 40,
+      duration: 0.8
+    },
+
+    /* BLUR */
+    "blur-in": {
+      opacity: 0,
+      blur: 14
+    },
+
+    /* CINEMATIC */
+    "cinematic": {
       opacity: 0,
       y: 80,
       blur: 16,
       duration: 1.2,
-      ease: "power3.out",
+      ease: "power3.out"
     },
-    "hero-reveal": {
+
+    "cinematic-strong": {
+      opacity: 0,
+      y: 140,
+      blur: 20,
+      scale: 0.9,
+      duration: 1.4,
+      ease: "power4.out"
+    },
+
+    /* HERO (BEST FOR AI) */
+    "hero": {
       opacity: 0,
       y: 100,
-      scale: 0.9,
-      blur: 20,
-      duration: 1.5,
-      ease: "expo.out",
-    },
-
-    /* ======================
-       CHARACTER FX
-    ====================== */
-    "char-wave": { y: 30 },
-    "char-wave-soft": { y: 15 },
-    "char-jump": { y: 80, ease: "bounce.out" },
-    "char-flicker": { opacity: 0 },
-    "char-spiral": { rotate: 45, scale: 0.5 },
-
-    /* ======================
-       ELASTIC / BOUNCE
-    ====================== */
-    "elastic-pop": {
-      scale: 0.5,
-      ease: "elastic.out(1,0.4)",
-    },
-    "elastic-up": {
-      y: 60,
-      ease: "elastic.out(1,0.3)",
-    },
-
-    /* ======================
-       LUXURY / SMOOTH
-    ====================== */
-    "luxury-slow": {
-      opacity: 0,
-      y: 30,
+      blur: 12,
+      scale: 0.95,
       duration: 1.6,
-      ease: "expo.out",
+      ease: "power4.out",
+      stagger: 0.03
     },
-    "smooth-reveal": {
+
+    /* SMOOTH */
+    "smooth": {
+      opacity: 0,
+      y: 24,
+      duration: 0.8,
+      ease: "power4.out"
+    },
+
+    /* ELASTIC */
+    "elastic-up": {
+      opacity: 0,
+      y: 100,
+      duration: 1,
+      ease: "elastic.out(1,0.5)"
+    },
+
+    "bounce-up": {
+      opacity: 0,
+      y: 120,
+      duration: 0.9,
+      ease: "back.out(1.7)"
+    },
+
+    /* SPECIAL */
+    "glitch-in": {
+      opacity: 0,
+      x: -20,
+      blur: 8,
+      duration: 0.4,
+      ease: "steps(2)"
+    },
+
+    /* PARAGRAPH */
+    "paragraph": {
+      opacity: 0,
+      y: 24,
+      duration: 0.8,
+      stagger: 0.05
+    },
+
+    "paragraph-blur": {
       opacity: 0,
       y: 20,
+      blur: 6,
       duration: 1,
-      ease: "power4.out",
-    },
+      stagger: 0.05
+    }
 
-    /* ======================
-       3D / DEPTH
-    ====================== */
-    "push-z": { z: 120, scale: 0.9 },
-    "pull-z": { z: -120, scale: 1.1 },
-    "tilt-in": { rotateX: 45, y: 40 },
-
-    /* ======================
-       FAST / MINIMAL
-    ====================== */
-    "quick-in": { duration: 0.25 },
-    "micro-slide": { y: 10, duration: 0.3 },
   };
 
+
+  /* =========================================================
+     INIT FUNCTION
+  ========================================================= */
+
   function init(root = document) {
+
     const elements = root.querySelectorAll("[data-split]");
 
     elements.forEach((el) => {
-      if (el.__splitAnimated) return;
-      el.__splitAnimated = true;
 
-      const mode = el.dataset.mode ?? "words";
-      const split = new SplitText(el, { type: mode });
+      if (el.__SplitMotionInit) return;
+      el.__SplitMotionInit = true;
 
-      const targets =
-        mode === "chars"
-          ? split.chars
-          : mode === "lines"
-          ? split.lines
-          : split.words;
 
-      // ===============================
-      // DETECT PRESET
-      // ===============================
-      let presetConfig = {};
-      Object.keys(PRESETS).forEach((preset) => {
-        if (el.hasAttribute(`data-${preset}`)) {
-          presetConfig = PRESETS[preset];
-        }
+      /* MODE */
+      const mode = el.dataset.mode || "words";
+
+
+      /* SPLIT */
+      const split = new SplitText(el, {
+        type: mode
       });
 
-      // ===============================
-      // BASE CONFIG (DEFAULT)
-      // ===============================
-      const config = {
-        opacity: Number(el.dataset.opacity ?? presetConfig.opacity ?? 0),
-        x: Number(el.dataset.x ?? presetConfig.x ?? 0),
-        y: Number(el.dataset.y ?? presetConfig.y ?? 40),
-        z: Number(el.dataset.z ?? presetConfig.z ?? 0),
-        scale: Number(el.dataset.scale ?? presetConfig.scale ?? 1),
-        rotate: Number(el.dataset.rotate ?? presetConfig.rotate ?? 0),
-        rotateX: Number(el.dataset.rotateX ?? presetConfig.rotateX ?? 0),
-        rotateY: Number(el.dataset.rotateY ?? presetConfig.rotateY ?? 0),
-        duration: Number(el.dataset.duration ?? presetConfig.duration ?? 0.4),
-        delay: Number(el.dataset.delay ?? 0),
-        stagger: Number(el.dataset.stagger ?? 0.08),
-        ease: el.dataset.ease ?? presetConfig.ease ?? "power2.out",
-        filter: `blur(${el.dataset.blur ?? presetConfig.blur ?? 0}px)`,
-      };
 
-      if (el.dataset.scroll !== "false") {
-        config.scrollTrigger = {
-          trigger: el,
-          start: el.dataset.start ?? "top 80%",
-          end: el.dataset.end ?? "bottom top",
-        };
+      let targets;
+
+      if (mode === "chars") targets = split.chars;
+      else if (mode === "lines") targets = split.lines;
+      else targets = split.words;
+
+
+      /* GET PRESET */
+      let presetConfig = {};
+
+      for (const presetName in PRESETS) {
+
+        if (el.hasAttribute(`data-${presetName}`)) {
+
+          presetConfig = PRESETS[presetName];
+          break;
+
+        }
+
       }
 
-      gsap.from(targets, config);
+
+      /* BUILD CONFIG */
+      const fromConfig = {
+
+        opacity: Number(el.dataset.opacity ?? presetConfig.opacity ?? 0),
+
+        x: Number(el.dataset.x ?? presetConfig.x ?? 0),
+
+        y: Number(el.dataset.y ?? presetConfig.y ?? 0),
+
+        z: Number(el.dataset.z ?? presetConfig.z ?? 0),
+
+        scale: Number(el.dataset.scale ?? presetConfig.scale ?? 1),
+
+        rotate: Number(el.dataset.rotate ?? presetConfig.rotate ?? 0),
+
+        rotateX: Number(el.dataset.rotateX ?? presetConfig.rotateX ?? 0),
+
+        rotateY: Number(el.dataset.rotateY ?? presetConfig.rotateY ?? 0),
+
+        filter: `blur(${Number(el.dataset.blur ?? presetConfig.blur ?? 0)}px)`
+
+      };
+
+
+      const toConfig = {
+
+        opacity: 1,
+        x: 0,
+        y: 0,
+        z: 0,
+        scale: 1,
+        rotate: 0,
+        rotateX: 0,
+        rotateY: 0,
+        filter: "blur(0px)",
+
+        duration: Number(el.dataset.duration ?? presetConfig.duration ?? 0.6),
+
+        delay: Number(el.dataset.delay ?? 0),
+
+        stagger: Number(el.dataset.stagger ?? presetConfig.stagger ?? 0.08),
+
+        ease: el.dataset.ease ?? presetConfig.ease ?? "power2.out"
+
+      };
+
+
+      /* SCROLLTRIGGER */
+      if (el.dataset.scroll !== "false") {
+
+        toConfig.scrollTrigger = {
+
+          trigger: el,
+
+          start: el.dataset.start || "top 85%",
+
+          end: el.dataset.end || "bottom top",
+
+          toggleActions: "play none none none"
+
+        };
+
+      }
+
+
+      /* SET INITIAL */
+      gsap.set(targets, fromConfig);
+
+
+      /* ANIMATE */
+      gsap.to(targets, toConfig);
+
+
     });
+
   }
 
-  window.SplitMotion = { init };
-})(window);
+
+  /* AUTO INIT */
+  init();
+
+
+  /* GLOBAL  */
+  window.SplitMotion = {
+    init
+  };
+
+});
+
+
+// hendzz was here
