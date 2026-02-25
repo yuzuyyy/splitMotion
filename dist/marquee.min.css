@@ -1,0 +1,10 @@
+/* Track Scroll CDN Library */
+/* Author: hendzz */
+
+[data-track-scroll],
+#track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  transform: translateX(0);
+}
