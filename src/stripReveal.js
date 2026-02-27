@@ -9,6 +9,7 @@ document.querySelectorAll('[data-strip-reveal]').forEach((element) => {
     const ease = element.dataset.ease || 'power2.out';
     const count = parseInt(element.dataset.count) || 5;
     const horizontal = element.hasAttribute('data-horizontal');
+    const start = element.dataset.start || "top 80%";
 
     // ===== FIX: HANDLE IMG =====
     if (element.tagName === 'IMG') {
@@ -44,7 +45,7 @@ document.querySelectorAll('[data-strip-reveal]').forEach((element) => {
 
     ScrollTrigger.create({
         trigger: element,
-        start: 'top 80%',
+        start: start,
         toggleActions: 'play none none none',
 
         onEnter: () => {
